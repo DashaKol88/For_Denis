@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form method="post">
+        {% csrf_token %}
+        <!-- Поля для ввода логина и пароля -->
+        <input type="text" name="username" placeholder="Username">
+        <input type="password" name="password" placeholder="Password">
+        <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+</body>
+</html>

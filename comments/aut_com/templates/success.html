@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Success Page</title>
+</head>
+<body>
+    <h2>All Comments</h2>
+    <ul>
+        {% for comment in comments %}
+        <li>
+            {{ comment.content }}
+            <ul>
+                {% for reply in comment.replies.all %}
+                <li>{{ reply.content }}</li>
+                {% endfor %}
+            </ul>
+            <form method="post" action="{% url 'success' %}">
+                {% csrf_token %}
+                <input type="hidden" name="parent_comment_id" value="{{ comment.id }}">
+                <textarea name="content" placeholder="Reply to this comment"></textarea>
+                <button type="submit">Reply</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <h2>Add Comment</h2>
+    <form method="post" action="{% url 'success' %}">
+        {% csrf_token %}
+        <textarea name="content" placeholder="Your comment"></textarea>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

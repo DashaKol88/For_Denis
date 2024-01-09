@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import AuthorRegistrationForm, CommentForm
 from .models import Author, Comment
 from django.contrib.auth.models import User
@@ -30,7 +30,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('success')  # Перенаправление поменять
+            return redirect('success')
         else:
             # Обработка неверных учетных данных, например, вывод сообщения об ошибке
             pass
@@ -46,7 +46,8 @@ def success_view(request):
         if form.is_valid():
             author = Author.objects.get(user=request.user)  # Получаем текущего автора
             content = form.cleaned_data['content']
-            parent_comment_id = form.cleaned_data.get('parent_comment_id')  # Если нужно, можно добавить поле для ответа на определенный комментарий
+            parent_comment_id = form.cleaned_data.get(
+                'parent_comment_id')  # Если нужно, можно добавить поле для ответа на определенный комментарий
 
             if parent_comment_id:
                 parent_comment = Comment.objects.get(id=parent_comment_id)
@@ -60,3 +61,31 @@ def success_view(request):
         form = CommentForm()
 
     return render(request, 'success.html', {'comments': comments, 'form': form})
+
+
+def update_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if comment.author.user == request.user:
+            form.save()
+            return redirect('success')
+        else:
+            pass  # может передать ошибку какую-то
+
+    else:
+        form = CommentForm(instance=comment)
+
+    return render(request, 'update.html', {'form': form, 'comment': comment})
+
+
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if request.method == "POST":
+        if comment.author.user == request.user:
+            comment.delete()
+            return redirect('success')
+        else:
+            pass  # аналогично подумать что передать
+
+    return render(request, 'delete.html')
